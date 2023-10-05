@@ -2,10 +2,13 @@ summary: Check that an explicitly installed remains marked as explicitly install
 
 prepare: |
   snap install --devmode jq
+  tests.cleanup defer snap remove jq
 
 execute: |
   snap install --revision=2790 core18
-  jq -r .data.snaps.core18.implicitly-installed /var/lib/snapd/state.json | MATCH false
+  tests.cleanup defer snap remove core18
+
+  jq -r '.data.snaps.core18["implicitly-installed"]' /var/lib/snapd/state.json | MATCH false
 
   snap refresh core18
-  jq -r .data.snaps.core18.implicitly-installed /var/lib/snapd/state.json | MATCH false
+  jq -r '.data.snaps.core18["implicitly-installed"]' /var/lib/snapd/state.json | MATCH false
