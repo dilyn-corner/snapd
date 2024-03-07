@@ -1,0 +1,54 @@
+From b590306cbd6400be62868516475fc515cb3ea9d8 Mon Sep 17 00:00:00 2001
+From: Dilyn Corner <dilyn.corner@canonical.com>
+Date: Wed, 6 Mar 2024 22:04:55 -0500
+Subject: [PATCH 1/5] grub.go: add support for riscv64
+
+Note that currently, no shim binaries are produced for riscv64. So,
+at least for now, only return the GRUB binary when the runtime machine
+is riscv64.
+
+Signed-off-by: Dilyn Corner <dilyn.corner@canonical.com>
+---
+ bootloader/grub.go | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/bootloader/grub.go b/bootloader/grub.go
+index 905343069a..a14ea5ad9e 100644
+--- a/bootloader/grub.go
++++ b/bootloader/grub.go
+@@ -23,6 +23,7 @@ import (
+ 	"fmt"
+ 	"os"
+ 	"path/filepath"
++	"runtime"
+ 	"strings"
+ 
+ 	"github.com/snapcore/snapd/arch"
+@@ -465,6 +466,8 @@ var grubBootAssetsForArch = map[string]grubBootAssetPath{
+ 	"arm64": {
+ 		shimBinary: filepath.Join("EFI/boot/", "bootaa64.efi"),
+ 		grubBinary: filepath.Join("EFI/boot/", "grubaa64.efi")},
++	"riscv64": {
++		grubBinary: filepath.Join("EFI/boot/", "grubriscv64.efi")},
+ }
+ 
+ func (g *grub) getGrubBootAssetsForArch() (*grubBootAssetPath, error) {
+@@ -486,7 +489,14 @@ func (g *grub) getGrubRecoveryModeTrustedAssets() ([]string, error) {
+ 	if err != nil {
+ 		return nil, err
+ 	}
+-	return []string{assets.shimBinary, assets.grubBinary}, nil
++
++	// Currently no shim binary is produced for RISC-V GRUB
++	switch runtime.GOARCH {
++	case "riscv64":
++		return []string{assets.grubBinary}, nil
++	default:
++		return []string{assets.shimBinary, assets.grubBinary}, nil
++	}
+ }
+ 
+ // getGrubRunModeTrustedAssets returns the assets for run mode, which is
+-- 
+2.40.1
+

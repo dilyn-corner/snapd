@@ -1,0 +1,27 @@
+From 9dfb52f7c4e513a6ac4c6bee47fb8e2b4437049a Mon Sep 17 00:00:00 2001
+From: Dilyn Corner <dilyn.corner@canonical.com>
+Date: Thu, 7 Mar 2024 16:18:50 -0500
+Subject: [PATCH 4/5] fixup! fixup! bootloader/assets/data/grub-recovery.cfg:
+ allow riscv64 as grub arch
+
+---
+ bootloader/assets/grub.go | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/bootloader/assets/grub.go b/bootloader/assets/grub.go
+index 54888fdc3a..adfe870b60 100644
+--- a/bootloader/assets/grub.go
++++ b/bootloader/assets/grub.go
+@@ -35,6 +35,9 @@ var cmdlineForArch = map[string][]ForEditions{
+ 		{FirstEdition: 1, Snippet: []byte("console=ttyS0 console=tty1 panic=-1")},
+ 		{FirstEdition: 3, Snippet: []byte("console=ttyS0,115200n8 console=tty1 panic=-1")},
+ 	},
++	"riscv64": {
++		{FirstEdition: 1, Snippet: []byte("console=ttyS0,115200 earlycon panic=-1")},
++	},
+ }
+ 
+ func registerGrubSnippets() {
+-- 
+2.40.1
+
