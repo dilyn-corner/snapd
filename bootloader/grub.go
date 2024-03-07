@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/snapcore/snapd/arch"
@@ -511,6 +512,8 @@ var grubBootAssetsForArch = map[string]grubBootAssetPath{
 	"arm64": {
 		shimBinary: filepath.Join("EFI/boot/", "bootaa64.efi"),
 		grubBinary: filepath.Join("EFI/boot/", "grubaa64.efi")},
+	"riscv64": {
+		grubBinary: filepath.Join("EFI/boot/", "grubriscv64.efi")},
 }
 
 func (g *grub) getGrubBootAssetsForArch() (*grubBootAssetPath, error) {
@@ -532,7 +535,14 @@ func (g *grub) getGrubRecoveryModeTrustedAssets() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	return []string{assets.shimBinary, assets.grubBinary}, nil
+
+	// Currently no shim binary is produced for RISC-V GRUB
+	switch runtime.GOARCH {
+	case "riscv64":
+		return []string{assets.grubBinary}, nil
+	default:
+		return []string{assets.shimBinary, assets.grubBinary}, nil
+	}
 }
 
 // getGrubRunModeTrustedAssets returns the assets for run mode, which is
