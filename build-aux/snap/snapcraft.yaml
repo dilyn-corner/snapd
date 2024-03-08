@@ -11,10 +11,8 @@ description: |
 adopt-info: snapd-deb
 # build-base is needed here for snapcraft to build this snap as with "modern"
 # snapcraft
-build-base: core
-package-repositories:
-  - type: apt
-    ppa: snappy-dev/image
+build-base: core22
+confinement: strict
 grade: stable
 license: GPL-3.0
 
@@ -43,6 +41,7 @@ parts:
       snapcraftctl pull
       # set version, this needs dpkg-parsechangelog (from dpkg-dev) and git
       snapcraftctl set-version "$(./mkversion.sh --output-only)"
+      [ -e packaging/ubuntu-22.04 ] || ln -s ubuntu-16.04 packaging/ubuntu-22.04
       # Ensure that ./debian/ packaging which we are about to use
       # matches the current `build-base` release. I.e. ubuntu-16.04
       # for build-base:core, etc.
@@ -127,7 +126,7 @@ parts:
     stage-packages:
       - libc6
       - libc-bin
-      - libgcc1
+      - libgcc-s1
     stage:
       - lib/*
       - usr/lib/*
@@ -149,7 +148,7 @@ parts:
     build-packages: [python3-apt]
     source: https://github.com/snapcore/fc-cache-static-builder.git
     override-build: |
-      ./build-from-security.py xenial
+      [ "$(uname -m)" = "riscv64" ] && cp /bin/true fc-cache-xenial || ./build-from-security.py xenial
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       cp -a fc-cache-xenial $SNAPCRAFT_PART_INSTALL/bin/fc-cache-v6
     prime:
@@ -160,7 +159,7 @@ parts:
     build-packages: [python3-apt]
     source: https://github.com/snapcore/fc-cache-static-builder.git
     override-build: |
-      ./build-from-security.py bionic
+      [ "$(uname -m)" = "riscv64" ] && cp /bin/true fc-cache-bionic || ./build-from-security.py bionic
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       cp -a fc-cache-bionic $SNAPCRAFT_PART_INSTALL/bin/fc-cache-v7
     prime:
